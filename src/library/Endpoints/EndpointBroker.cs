@@ -13,8 +13,8 @@ using Microsoft.AspNetCore.Routing;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Thinkum.WebCore.Endpoints;
-namespace Thinkum.WebCore.Middleware
+
+namespace Thinkum.WebCore.Endpoints
 {
     public class EndpointBroker
     {

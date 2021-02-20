@@ -18,7 +18,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Thinkum.WebCore.Endpoints;
-using Thinkum.WebCore.Middleware;
 
 namespace Thinkum.WebCore
 {
