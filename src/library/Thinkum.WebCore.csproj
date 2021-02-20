@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
 	  <OutputType>library</OutputType>
+	  <Nullable>enable</Nullable>
   </PropertyGroup>
 
 </Project>

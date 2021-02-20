@@ -14,22 +14,45 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Thinkum.WebCore.Endpoints;
+using Thinkum.WebCore.Middleware;
 
 namespace Thinkum.WebCore
 {
     public class Startup
     {
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+
+        protected EndpointBroker broker;
+        protected IConfiguration config;
+
+        public Startup(IConfiguration config)
+        {
+            // TBD DI for this constructor
+            this.config = config;
+            this.broker = new EndpointBroker();
+
+            broker.BindEndpoint("/", RequestMethod.Get, async (context) =>
+            {
+                await context.Response.WriteAsync("Request Successful");
+            });
+
+            broker.BindFallbackEndpoint(async (context) =>
+            {
+                await context.Response.WriteAsync("Fallback Request Successful");
+            });
+
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -37,13 +60,14 @@ namespace Thinkum.WebCore
 
             app.UseRouting();
 
-            app.UseEndpoints(endpoints =>
+            // app.UseMiddleware<EndpointBrokerMiddleware>(); // TBD. See src for that class (now defined as abstract)
+
+            app.UseEndpoints(builder =>
             {
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
+                broker.RegisterEndpoints(builder);
             });
+
         }
+
     }
 }
