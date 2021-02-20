@@ -1,0 +1,56 @@
+# .gitattributes for Thinkum.WebCore
+
+## normalize .gitignore to LF
+.gitignore	text	eol=lf
+
+Makefile	text	eol=lf
+*.mk		text	eol=lf
+*.sh		text	eol=lf
+*.spec		text	eol=lf
+
+*.bat	text	eol=crlf
+*.ps1	text	eol=crlf
+*.cmd	text	eol=crlf
+
+## Using CRLF for editor consistency, in all of the following
+
+*.sln		text	eol=crlf
+*.slnf		text	eol=crlf
+*.csproj	text	eol=crlf
+*.csproj.*	text	eol=crlf
+*.prjx		text	eol=crlf
+*.cmbx		text	eol=crlf
+
+*.jjt	text	eol=crlf
+
+*.axaml	text	eol=crlf
+*.cpp	text	eol=crlf
+*.cs	text	eol=crlf
+*.vb	text	eol=crlf
+*.c		text	eol=crlf
+*.cc	text	eol=crlf
+*.cxx	text	eol=crlf
+*.c++	text	eol=crlf
+*.cppm	text	eol=crlf
+*.ixx	text	eol=crlf
+*.def	text	eol=crlf
+*.odl	text	eol=crlf
+*.idl	text	eol=crlf
+*.hpj	text	eol=crlf
+*.asm	text	eol=crlf
+*.asmx	text	eol=crlf
+*.h		text	eol=crlf
+*.hh	text	eol=crlf
+*.hpp	text	eol=crlf
+*.hxx	text	eol=crlf
+*.h++	text	eol=crlf
+*.hm	text	eol=crlf
+*.inl	text	eol=crlf
+*.inc	text	eol=crlf
+*.ipp	text	eol=crlf
+*.xsd	text	eol=crlf
+*.xaml	text	eol=crlf
+*.xml	text	eol=crlf
+*.json	text	eol=crlf
+*.plist	text	eol=crlf
+*.ini	text	eol=crlf

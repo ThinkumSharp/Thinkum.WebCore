@@ -1,0 +1,62 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31005.135
+MinimumVisualStudioVersion = 15.0.26124.0
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Thinkum.WebCore.Tests", "src\tests\Thinkum.WebCore.Tests.csproj", "{3C9144D7-9E4B-43F3-B6D2-B17AB651CC85}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Thinkum.WebCore", "src\library\Thinkum.WebCore.csproj", "{88867D25-40B5-4A8F-A9E0-DFEC137BA1EA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{13FF027E-7E9A-47D2-87DE-C62729089AC0}"
+	ProjectSection(SolutionItems) = preProject
+		templates\File.Template.cs = templates\File.Template.cs
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project Resources", "Project Resources", "{A235852A-758A-4562-A057-D7C6317917D9}"
+	ProjectSection(SolutionItems) = preProject
+		COPYING.md = COPYING.md
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3C9144D7-9E4B-43F3-B6D2-B17AB651CC85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C9144D7-9E4B-43F3-B6D2-B17AB651CC85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C9144D7-9E4B-43F3-B6D2-B17AB651CC85}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3C9144D7-9E4B-43F3-B6D2-B17AB651CC85}.Debug|x64.Build.0 = Debug|Any CPU
+		{3C9144D7-9E4B-43F3-B6D2-B17AB651CC85}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3C9144D7-9E4B-43F3-B6D2-B17AB651CC85}.Debug|x86.Build.0 = Debug|Any CPU
+		{3C9144D7-9E4B-43F3-B6D2-B17AB651CC85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C9144D7-9E4B-43F3-B6D2-B17AB651CC85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C9144D7-9E4B-43F3-B6D2-B17AB651CC85}.Release|x64.ActiveCfg = Release|Any CPU
+		{3C9144D7-9E4B-43F3-B6D2-B17AB651CC85}.Release|x64.Build.0 = Release|Any CPU
+		{3C9144D7-9E4B-43F3-B6D2-B17AB651CC85}.Release|x86.ActiveCfg = Release|Any CPU
+		{3C9144D7-9E4B-43F3-B6D2-B17AB651CC85}.Release|x86.Build.0 = Release|Any CPU
+		{88867D25-40B5-4A8F-A9E0-DFEC137BA1EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88867D25-40B5-4A8F-A9E0-DFEC137BA1EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88867D25-40B5-4A8F-A9E0-DFEC137BA1EA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{88867D25-40B5-4A8F-A9E0-DFEC137BA1EA}.Debug|x64.Build.0 = Debug|Any CPU
+		{88867D25-40B5-4A8F-A9E0-DFEC137BA1EA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{88867D25-40B5-4A8F-A9E0-DFEC137BA1EA}.Debug|x86.Build.0 = Debug|Any CPU
+		{88867D25-40B5-4A8F-A9E0-DFEC137BA1EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88867D25-40B5-4A8F-A9E0-DFEC137BA1EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88867D25-40B5-4A8F-A9E0-DFEC137BA1EA}.Release|x64.ActiveCfg = Release|Any CPU
+		{88867D25-40B5-4A8F-A9E0-DFEC137BA1EA}.Release|x64.Build.0 = Release|Any CPU
+		{88867D25-40B5-4A8F-A9E0-DFEC137BA1EA}.Release|x86.ActiveCfg = Release|Any CPU
+		{88867D25-40B5-4A8F-A9E0-DFEC137BA1EA}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {40080047-C342-40A0-8907-215F89259FD0}
+	EndGlobalSection
+EndGlobal
