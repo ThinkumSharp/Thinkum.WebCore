@@ -91,12 +91,9 @@ namespace Thinkum.WebCore.Endpoints
             }
         }
 
-        private void ConfigureFallback(IEndpointConventionBuilder cbuilder)
+        protected void ConfigureFallback(IEndpointConventionBuilder cbuilder)
         {
-            if (fallbackConfig != null)
-            {
-                fallbackConfig(cbuilder);
-            }
+            fallbackConfig?.Invoke(cbuilder);
         }
     }
 }
