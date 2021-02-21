@@ -25,7 +25,9 @@ namespace Thinkum.WebCore.Endpoints
 
         protected List<IEndpointRegistration> endpoints;
 
-        protected RequestDelegate? fallback = null;
+        protected RequestDelegate? fallbackDelegate = null;
+
+        protected Action<IEndpointConventionBuilder>? fallbackConfig = null;
 
         public EndpointBroker()
         {
@@ -44,18 +46,20 @@ namespace Thinkum.WebCore.Endpoints
             endpoints.Add(reg);
         }
 
-        public void BindFallbackEndpoint(RequestDelegate fallbackDelegate)
+        public void BindFallbackEndpoint(RequestDelegate fallbackDelegate, Action<IEndpointConventionBuilder>? fallbackConfig = null)
         {
-            fallback = fallbackDelegate;
+            this.fallbackDelegate = fallbackDelegate;
+            this.fallbackConfig = fallbackConfig;
         }
 
         public void RegisterEndpoints(IEndpointRouteBuilder builder)
         {
             // called e.g in Startup.Configure(app, env) ... app.UseEndpoints(builder  => {  broker.RegisterEndpoints(builder); })
 
-            if (fallback != null)
+            if (fallbackDelegate != null)
             {
-                builder.MapFallback(fallback);
+                var cbuilder = builder.MapFallback(fallbackDelegate);
+                ConfigureFallback(cbuilder);
             }
 
             foreach (IEndpointRegistration reg in endpoints)
@@ -84,6 +88,14 @@ namespace Thinkum.WebCore.Endpoints
                     var cbuilder = builder.MapDelete(path, delg);
                     reg.ConfigureEndpoint(RequestMethod.Delete, cbuilder);
                 }
+            }
+        }
+
+        private void ConfigureFallback(IEndpointConventionBuilder cbuilder)
+        {
+            if (fallbackConfig != null)
+            {
+                fallbackConfig(cbuilder);
             }
         }
     }

@@ -32,21 +32,28 @@ namespace Thinkum.WebCore
             // TBD DI for this constructor
             this.config = config;
             this.broker = new EndpointBroker();
-
-            broker.BindEndpoint("/", RequestMethod.Get, async (context) =>
-            {
-                await context.Response.WriteAsync("Request Successful");
-            });
-
-            broker.BindFallbackEndpoint(async (context) =>
-            {
-                await context.Response.WriteAsync("Fallback Request Successful");
-            });
-
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
+            broker.BindEndpoint("/", RequestMethod.Get,
+                async (context) =>
+                {
+                    string msg = String.Format("Response Successful, for endpoint \"{0}\"", context.GetEndpoint().DisplayName ?? "(TBD)");
+                    await context.Response.WriteAsync(msg);
+                });
+
+            broker.BindFallbackEndpoint(
+                async (context) =>
+                {
+                    string msg = String.Format("Fallback Response Successful, for request ({0}) to path \"{1}\" with endpoint \"{2}\"",
+                        context.Request.Method, context.Request.Path, context.GetEndpoint().DisplayName ?? "(TBD)");
+                    await context.Response.WriteAsync(msg);
+                },
+                (builder) =>
+                {
+                    builder.WithDisplayName("Fallback");
+                });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
