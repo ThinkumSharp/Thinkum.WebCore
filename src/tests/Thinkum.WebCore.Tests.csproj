@@ -3,9 +3,11 @@
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
 		<RootNamespace>Thinkum.WebCore</RootNamespace>
+		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\Data.EFCore.SqlServer\Thinkum.WebCore.Data.EFCore.SqlServer.csproj" />
 	  <ProjectReference Include="..\library\Thinkum.WebCore.csproj" />
 	</ItemGroup>
 
