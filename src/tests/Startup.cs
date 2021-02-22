@@ -27,19 +27,22 @@ using Thinkum.WebCore.Endpoints;
 namespace Thinkum.WebCore
 {
 
-    public class Startup<TContext>
-        where TContext: DbContext
+    public class Startup<TContext, TBuilder>
+        where TContext : DbContext
+        where TBuilder : DbConnectionStringBuilder
     {
 
+        protected static readonly Type dbStringBuilderType = typeof(TBuilder);
+
         protected EndpointBroker broker;
-        private readonly string appName;
+        protected readonly string appName;
         protected readonly IConfiguration config;
 
         protected string AppName => appName;
 
         public Startup(string appName, IConfiguration config)
         {
-            // TBD DI for this constructor
+            // TBD DI for this constructor - note how it's being called now, under a factory methodology in Program.cs
             this.appName = appName;
             this.config = config;
             this.broker = new EndpointBroker();
@@ -48,9 +51,10 @@ namespace Thinkum.WebCore
         public void ConfigureServices(IServiceCollection services)
         {
 
-            // FIXME provide an initial connection string template to DbConnectionManagerOptions from config[TBD]
+            services.AddHostedService<DbConnectionManagerHost>(); // NB initial database migration, db creation by side effect, once per connection
+
             services.AddSingleton<DbConnectionManager>().AddOptions<DbConnectionManagerOptions>()
-                .Configure(options => ConfigureConnectionManagerOptions(options));
+                .Configure(options => this.ConfigureConnectionManagerOptions(options));
             services.AddDbContext<TContext>();
 
             // TBD passing route metadata to endpoint instances => db connection name per endpoint
@@ -76,7 +80,11 @@ namespace Thinkum.WebCore
 
         private void ConfigureConnectionManagerOptions(DbConnectionManagerOptions options)
         {
-            options.MapDataService(AppName, typeof(TContext), ConfigureConnectionString);
+            string? template = config.GetConnectionString(this.AppName); // FIXME test this templating
+            if (String.IsNullOrEmpty(template))
+                template = null;
+
+            options.MapDataService(this.AppName, typeof(TContext), dbStringBuilderType, template, this.ConfigureConnectionString);
         }
 
         private void ConfigureConnectionString(string name, DbConnectionStringBuilder builder)

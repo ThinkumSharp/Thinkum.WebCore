@@ -44,12 +44,15 @@ namespace Thinkum.WebCore.Data
         }
         #endregion
 
-        public DbConnectionStringBuilder ConfigureConnectionStringBuilder(DbConnectionStringBuilder builder)
+        public DbConnectionStringBuilder ConfigureConnectionStringBuilder()
         {
-            string name = this.GetType().GetConnectionName();
+            string name = this.GetType().GetConnectionName(); // NB connection name in class, via attribue or class name
             var bind = connectionManager.GetConnectionBinding(name);
 
+            var proto = bind.GetStringBuilderPrototype();
+
             var bindContextType = bind.DbContextType;
+            // NB type consistency check
             if (!this.GetType().IsAssignableFrom(bindContextType))
             {
                 string msg = String.Format("DbContext type {0} registered for {1} is not usable with {2}", bindContextType, name, this);
@@ -57,8 +60,9 @@ namespace Thinkum.WebCore.Data
             }
 
             var delg = bind.StringBuilderDelegate;
-            delg?.Invoke(name, builder);
-            return builder;
+            delg?.Invoke(name, proto);
+            return proto;
         }
+
     }
 }
