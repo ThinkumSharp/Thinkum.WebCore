@@ -36,20 +36,14 @@ namespace Thinkum.WebCore.Data
 
         public override void PopulateDebugInfo([NotNull] IDictionary<string, string> debugInfo)
         {
-            var ext = base.Extension;
-            if (ext is WebCoreOptionsExtension wcext)
-                debugInfo.Add("WebCoreOptionsExtension:name", wcext.ConnectionName);
+            // N/A
         }
     }
 
     public class WebCoreOptionsExtension : IDbContextOptionsExtension
     {
-
-        protected readonly string connectionName;
-        protected readonly Action<string, DbConnectionStringBuilder>? connectionStringDelegate;
+        protected readonly Action<DbConnectionStringBuilder>? connectionStringDelegate;
         protected DbContextOptionsExtensionInfo? cachedInfo = null;
-
-        public string ConnectionName => connectionName;
 
         public DbContextOptionsExtensionInfo Info
         {
@@ -63,9 +57,8 @@ namespace Thinkum.WebCore.Data
             }
         }
 
-        public WebCoreOptionsExtension(string connectionName, Action<string, DbConnectionStringBuilder>? connectionStringDelegate = null) : base()
+        public WebCoreOptionsExtension(Action<DbConnectionStringBuilder>? connectionStringDelegate = null) : base()
         {
-            this.connectionName = connectionName;
             this.connectionStringDelegate = connectionStringDelegate;
         }
 

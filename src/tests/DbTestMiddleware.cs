@@ -9,6 +9,8 @@
  */
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -56,8 +58,14 @@ namespace Thinkum.WebCore
 
             using (IServiceScope inScope = services.CreateScope())
             {
-                var dbc = inScope.ServiceProvider.GetRequiredService<SqlServerDbContext>();
-                await dbc.AddAsync("Frob");
+
+                var dbc = inScope.ServiceProvider.GetRequiredService<MainDbContext>();
+
+                // TBD this may cause an error in some instances, if the database was created separately (??)
+                RelationalDatabaseCreator frob = (RelationalDatabaseCreator)dbc.Database.GetService<IDatabaseCreator>();
+                frob.EnsureCreated();
+
+                // await dbc.AddAsync("Frob");
                 await dbc.SaveChangesAsync();
             }
             // await dbContext.SaveChangesAsync();

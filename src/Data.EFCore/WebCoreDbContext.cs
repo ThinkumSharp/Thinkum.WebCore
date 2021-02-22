@@ -10,6 +10,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -25,42 +26,44 @@ namespace Thinkum.WebCore.Data
         // encapsulating the provided string
 
         protected readonly IConfiguration config;
-        protected readonly string connectionName;
-        protected readonly Action<string, DbConnectionStringBuilder>? connectionStringDelegate;
+        protected readonly DbConnectionManager connectionManager;
 
 
         #region Properties
         public IConfiguration ServiceConfiguration => config;
-        public string ConnectionName => connectionName;
         #endregion
 
         #region Constructors
-        public WebCoreDbContext(IConfiguration config, DbContextOptions options, Action<string, DbConnectionStringBuilder>? connectionStringDelegate = null) : base(options)
+        public WebCoreDbContext(
+                IConfiguration config, DbContextOptions options,
+                DbConnectionManager mgr
+            ) : base(options)
         {
             this.config = config;
-            this.connectionStringDelegate = connectionStringDelegate;
-            this.connectionName = "NA";
-            /*
-            try
-            {
-                // FIXME is this too early to poll for the extension?
-                var ext = options.GetExtension<WebCoreOptionsExtension>();
-                // NB Note the connectionName's usage under e.g SqlServerDbContext.OnConfiguring()
-                connectionName = ext.ConnectionName;
-            }
-            catch (InvalidOperationException exc)
-            {
-                // FIXME reached
-                string msg = String.Format("Unable to locate extension WebCoreOptionsExtension in provided DbContextOptions {0}", options);
-                throw new InvalidOperationException(msg, exc);
-            }
-            */
+            this.connectionManager = mgr;
         }
         #endregion
 
-        protected void ConfigureConnectionString(string connectionName, DbConnectionStringBuilder builder)
+        public DbConnectionStringBuilder? ConfigureConnectionStringBuilder(DbConnectionStringBuilder builder)
         {
-            connectionStringDelegate?.Invoke(connectionName, builder);
+            string? name = this.GetType().GetConnectionName();
+            if (name != null)
+            {
+                var bind = connectionManager.GetConnectionBinding(name);
+
+                var bindContextType = bind.DbContextType;
+                if (!this.GetType().IsAssignableFrom(bindContextType)) {
+                    string msg = String.Format("DbContext type {0} registered for {1} not usable with {2}", bindContextType, name, this);
+                    throw new InvalidOperationException(msg);
+                }
+                var delg = bind.StringBuilderDelegate;
+                delg?.Invoke(name, builder);
+                return builder;
+            }
+            else
+            {
+                return null;
+            }
         }
 
     }

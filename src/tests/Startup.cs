@@ -9,6 +9,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,6 +26,11 @@ using Thinkum.WebCore.Endpoints;
 
 namespace Thinkum.WebCore
 {
+    internal static class ApplicationConstants
+    {
+        internal const string MainDbConnection = "WebCoreTests"; // NB Dots in this string may be inadvisable
+    }
+
     public class Startup
     {
 
@@ -40,30 +46,48 @@ namespace Thinkum.WebCore
 
         public void ConfigureServices(IServiceCollection services)
         {
-            // NB Note how the OnConfiguring method for SqlServerDbContext is wired to use the provided connection name
-            // as a key onto the table of ConnectionStrings e.g under appsettings.json
-            //
-            // FIXME Need an app for testing the wiring of this DbContext extension under dependency injection
-            services.AddNamedDbContext<SqlServerDbContext>("WebCore.Tests" , null,
-                (name, builder) => {
-                    if (builder is SqlConnectionStringBuilder sqlBuilder)
-                    {
-                        // var dataFolder = Path.Combine(Environment.CurrentDirectory, "Data"); // NB only for testing (FIXME ensure directory exists)
-                        var dataFolder = Environment.CurrentDirectory; // NB only for testing -- should be set at installation time
-                        var mdfName = name + ".mdf"; // TBD file is not being created
-                        sqlBuilder.AttachDBFilename = Path.Combine(dataFolder, mdfName); // FIXME use special folders to compute an absolute pathname
-                        sqlBuilder.IntegratedSecurity = true;
-                        sqlBuilder.MultipleActiveResultSets = true;
-                        sqlBuilder.ApplicationName = name;
-                        sqlBuilder.DataSource = @".\\sqlexpress";
-                        sqlBuilder.InitialCatalog = name; // i.e 'Database' keyword
-                    } else
-                    {
-                        string msg = String.Format("Unrecognized type of sqlBuilder: {0}", builder);
-                        throw new InvalidOperationException(msg);
-                    }
-                });
 
+            services.AddSingleton<DbConnectionManager>().AddOptions<DbConnectionManagerOptions>().Configure((options) =>
+            {
+                options.MapDataService(ApplicationConstants.MainDbConnection, typeof(MainDbContext), // ConfigureConnectionString, // NB TO DO
+                    (name, builder) => // name: string, builder: DbConnectionStringBuilder
+                    {
+                        // TBD this section is untested (FIXME WithExtensions may be useless for end users of EF Core)
+                        if (builder is SqlConnectionStringBuilder sqlBuilder)
+                        {
+                            // var dataFolder = Path.Combine(Environment.CurrentDirectory, "Data"); // NB only for testing (FIXME ensure directory exists)
+
+                            // ensure that the data file is not created under %HOME%
+                            var dataFolder = Environment.CurrentDirectory; // NB only for testing -- should be set at installation time
+                            var mdfName = name + ".mdf";
+                            sqlBuilder.AttachDBFilename = Path.Combine(dataFolder, mdfName); // FIXME use special folders to compute an absolute pathname
+
+                            sqlBuilder.IntegratedSecurity = true;
+                            sqlBuilder.MultipleActiveResultSets = true;
+                            sqlBuilder.ApplicationName = name;
+
+                            sqlBuilder.DataSource = @"(localdb)\MSSQLLocalDb"; // works
+
+                            // sqlBuilder.DataSource = @"np:\\.\pipe\LOCALDB#FE1DA647\tsql\query";
+                            // ^ see https://stackoverflow.com/questions/10214688/why-cant-i-connect-to-a-sql-server-2012-localdb-shared-instance
+
+                            // sqlBuilder.DataSource = @"'(localdb)\ProjectsV13"; // NB DNW at here
+
+                            sqlBuilder.InitialCatalog = name; // i.e 'Database' keyword
+                        }
+                        else
+                        {
+                            string msg = String.Format("Unsupported connection string builder: {0}", builder);
+                            throw new InvalidOperationException(msg);
+                        }
+                    }
+                    );
+            });
+
+            services.AddDbContext<MainDbContext>();
+
+
+            // TBD passing route metadata to endpoint instances => db connection name per endpoint
             broker.BindEndpoint("/", RequestMethod.Get,
                 async (context) =>
                 {
@@ -83,6 +107,14 @@ namespace Thinkum.WebCore
                     builder.WithDisplayName("Fallback");
                 });
         }
+
+        /* // TO DO
+        private void ConfigureConnectionString(string name, DbConnectionStringBuilder builder)
+        {
+            throw new NotImplementedException(); // NB see above
+            // NB coupled to the selection of database implementation
+        }
+        */
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
