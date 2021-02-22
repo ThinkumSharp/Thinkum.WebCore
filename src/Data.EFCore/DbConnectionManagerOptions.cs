@@ -18,25 +18,6 @@ using System.Data.Common;
 namespace Thinkum.WebCore.Data
 {
 
-    public class ConnectionBinding
-    {
-        protected readonly string connectionName;
-        protected readonly Type dbContextType;
-        protected readonly Action<string, DbConnectionStringBuilder>? stringBuilderDelegate;
-
-        public string ConnectionName => connectionName;
-        public Type DbContextType => dbContextType;
-        public Action<string, DbConnectionStringBuilder>? StringBuilderDelegate => stringBuilderDelegate;
-
-        public ConnectionBinding(string connectionName, Type dbContextType, Action<string, DbConnectionStringBuilder>? stringBuilderDelegate)
-        {
-            this.connectionName = connectionName;
-            this.dbContextType = dbContextType;
-            this.stringBuilderDelegate = stringBuilderDelegate;
-        }
-
-    }
-
     public class DbConnectionManagerOptions/*<TContext>*/ : ConnectionManagerService
         // where TContext : DbContext
     {
