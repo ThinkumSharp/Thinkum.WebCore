@@ -18,16 +18,13 @@ using System.Data.Common;
 namespace Thinkum.WebCore.Data
 {
 
-    public class DbConnectionManagerOptions/*<TContext>*/ : ConnectionManagerService
-        // where TContext : DbContext
+    public class DbConnectionManagerOptions : ConnectionManagerService
     {
-        // NB this needs a parameterless ctor - DI not provided here, novelly
         public DbConnectionManagerOptions() : base()
         {
         }
 
         public void MapDataService(
-            // IServiceCollection services,  // FIXME manage under DbConnectionManager
             string connectionName, 
             Type dbContextType, 
             Action<string, DbConnectionStringBuilder>? stringBuilderDelegate = null
@@ -35,9 +32,6 @@ namespace Thinkum.WebCore.Data
         {
             var binding = new ConnectionBinding(connectionName, dbContextType, stringBuilderDelegate);
             MapDataService(binding!);
-
-            // FIXME call this under the DbConnectionManager not this options class :
-            // return services.AddDbContext<TContext>();
         }
 
         public void MapDataService(ConnectionBinding binding)
