@@ -25,7 +25,6 @@ namespace Thinkum.WebCore.Data
 
         public DbConnectionManagerHost(DbConnectionManager mgr, ILogger<DbConnectionManagerHost> logger) : base()
         {
-            // FIXME what is causing failure in this class' service runtime?
             this.mgr = mgr;
             this.logger = logger;
         }
@@ -33,7 +32,7 @@ namespace Thinkum.WebCore.Data
         protected override async Task ExecuteAsync(CancellationToken token)
         {
             logger.LogInformation("ExecuteAsync in {0}", this);
-            await mgr.ConfigureDataServicesAsync(token); // FIXME the failure is occurring here            
+            await mgr.ConfigureDataServicesAsync(token);
         }
     }
 }
