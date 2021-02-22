@@ -8,22 +8,30 @@
 *
 */
 
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Thinkum.WebCore.Data
 {
-    public class DbConnectionManager : ConnectionManagerService, ILoggingService
+    public class DbConnectionManager : ConnectionManagerService
     {
         protected readonly ILogger logger;
+        protected readonly IServiceProvider services;
 
-        public DbConnectionManager(IOptions<DbConnectionManagerOptions> options, ILogger<DbConnectionManager> logger) : base()
+
+        public DbConnectionManager(IServiceProvider services, IOptions<DbConnectionManagerOptions> options, ILogger<DbConnectionManager> logger) : base()
         {
+            this.services = services;
             this.logger = logger;
             this.LoadConnectionMap(options.Value);
         }
@@ -52,29 +60,33 @@ namespace Thinkum.WebCore.Data
             }
         }
 
-        public void LogDebug(string message, params object[]? args)
+        public async Task ConfigureDataServicesAsync(CancellationToken token)
         {
-            logger.LogDebug(message, args);
+            using (var scope = services.CreateScope()) 
+            {
+                foreach (var entry in ConnectionBindings)
+                {
+                    if (token.IsCancellationRequested)
+                    {
+                        return;
+                    }
+
+                    var bind = entry.Value;
+                    if (!bind.DatabaseInitialized)
+                    {
+                        var dbctype = bind.DbContextType;
+                        logger.LogInformation("Database initialization for connection {0}", entry.Key); // TBD LogDebug not showing up w/ console
+                        using (DbContext dbc = (DbContext)scope.ServiceProvider.GetRequiredService(dbctype)) 
+                        {
+                            // NB as a side effect, the following should serve to ensure that the database exists
+                            await dbc.Database.MigrateAsync(token);
+                            await dbc.SaveChangesAsync(token);
+                        }
+                        bind.DatabaseInitialized = true;
+                    }
+                }
+            }
         }
 
-        public void LogInfo(string message, params object[]? args)
-        {
-            logger.LogInformation(message, args);
-        }
-
-        public void LogWarning(string message, params object[]? args)
-        {
-            logger.LogWarning(message, args);
-        }
-
-        public void LogError(string message, params object[]? args)
-        {
-            logger.LogError(message, args);
-        }
-
-        public void LogCritical(string message, params object[]? args)
-        {
-            logger.LogCritical(message, args);
-        }
     }
 }

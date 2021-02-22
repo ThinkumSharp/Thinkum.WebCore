@@ -30,33 +30,20 @@ namespace Thinkum.WebCore.Data
              DbConnectionManager mgr
              ) : base(config, options, mgr)
         {
-            // FIXME provide the "data service name" when initializing the instance,
-            // then use that "data service name" as the connection string name, below
-            //
-            // Demonstrate this under testing - implement the handling in WebCoreDbContext
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
         {
-            var cstrbld = new SqlConnectionStringBuilder();
 
-            // FIXME note the semantics of the connection name handling via DataConnectionAttribute
-            // in WebCoreDbContext.ConfigureConnectionStringBuilder(...)
-            ConfigureConnectionStringBuilder(cstrbld);
+            var cstrbld = ConfigureConnectionStringBuilder();
 
             string cstr = cstrbld.ConnectionString;
-            if(String.IsNullOrEmpty(cstr))
+            if (String.IsNullOrEmpty(cstr))
             {
                 throw new InvalidOperationException("Invalid connection string");
             }
 
-            // FIXME empty string
-            builder.UseSqlServer(cstr); // FIXME this is the only call specific to this class - the connection string handling is simply generic
-
-            /* FIXME the following may qualify as a use of this dbcontext. It may throw if called during OnConfiguring 
-            RelationalDatabaseCreator frob = (RelationalDatabaseCreator)this.Database.GetService<IDatabaseCreator>();
-            frob.EnsureCreated();
-            */
+            builder.UseSqlServer(cstr); // FIXME this represents the only call specific to this class (FIXME Remove this class)
         }
     }
 }

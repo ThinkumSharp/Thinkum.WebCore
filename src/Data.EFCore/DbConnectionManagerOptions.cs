@@ -25,12 +25,14 @@ namespace Thinkum.WebCore.Data
         }
 
         public void MapDataService(
-            string connectionName, 
-            Type dbContextType, 
+            string connectionName,
+            Type dbContextType,
+            Type stringBuilderType, 
+            string? connectionStringTemplate = null, 
             Action<string, DbConnectionStringBuilder>? stringBuilderDelegate = null
             )
         {
-            var binding = new ConnectionBinding(connectionName, dbContextType, stringBuilderDelegate);
+            var binding = new ConnectionBinding(connectionName, dbContextType, stringBuilderType, connectionStringTemplate, stringBuilderDelegate);
             MapDataService(binding!);
         }
 

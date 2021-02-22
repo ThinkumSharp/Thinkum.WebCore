@@ -9,6 +9,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
@@ -31,23 +32,29 @@ namespace Thinkum.WebCore
 
     public class Program
     {
-        public static void Main(string[] args)
+
+        public async static Task Main(string[] args)
         {
-            CreateHostBuilder<MainDbContext>(ApplicationConstants.AppName, args).Build().Run();
+            await CreateHostBuilder<MainDbContext, SqlConnectionStringBuilder>(ApplicationConstants.AppName, args).RunConsoleAsync(); // Parameter Count Mismatch ??
         }
 
-        public static IHostBuilder CreateHostBuilder<TContext>(string appName, string[] args)
-            where TContext: DbContext
+        public static IHostBuilder CreateHostBuilder<TContext, TBuilder>(string appName, string[] args)
+            where TContext : DbContext
+            where TBuilder : DbConnectionStringBuilder
         {
-            return Host.CreateDefaultBuilder(args)
-                 .ConfigureWebHostDefaults(webBuilder =>
+            // NB This does not check that contextType is a subtype of DbContext,
+            // or that stringBuilderType is a subtype of DbConnectionStringBuilder
+
+            IHostBuilder builder = Host.CreateDefaultBuilder(args);
+
+            return builder.ConfigureWebHostDefaults(webBuilder =>
+             {
+                 webBuilder.UseStartup((webbuilder) =>
                  {
-                     webBuilder.UseStartup((webbuilder) =>
-                     {
-                         var config = webbuilder.Configuration;
-                         return new Startup<TContext>(appName, config);
-                     });
+                     var config = webbuilder.Configuration;
+                     return new Startup<TContext, TBuilder>(appName, config);
                  });
+             });
         }
     }
 }
