@@ -35,7 +35,23 @@ namespace Thinkum.WebCore.Data
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
         {
             // FIXME this shortcuts any call to a connection string builder && TBD credentials handling
-            var cstr = config.GetConnectionString(this.connectionName); // NB The main reason why DbContextExtensions, ...
+            string cname;
+            try
+            {
+                // FIXME is this too early to poll for the extension?
+                var ext = builder.Options.GetExtension<WebCoreOptionsExtension>();
+                // NB Note the connectionName's usage under e.g SqlServerDbContext.OnConfiguring()
+                cname = ext.ConnectionName;
+            }
+            catch (InvalidOperationException exc)
+            {
+                // FIXME reached
+                string msg = String.Format("Unable to locate extension WebCoreOptionsExtension in provided DbContextOptions {0}", builder.Options);
+                throw new InvalidOperationException(msg, exc);
+            }
+
+            // var cstr = config.GetConnectionString(this.connectionName); // NB The main reason why DbContextExtensions, ...
+            var cstr = config.GetConnectionString(cname); // NB The main reason why DbContextExtensions, ...
             var cstrbld = new SqlConnectionStringBuilder(cstr);
             ConfigureConnectionString(this.connectionName, cstrbld);
             builder.UseSqlServer(cstrbld.ConnectionString);

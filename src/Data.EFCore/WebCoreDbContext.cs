@@ -39,8 +39,11 @@ namespace Thinkum.WebCore.Data
         {
             this.config = config;
             this.connectionStringDelegate = connectionStringDelegate;
+            this.connectionName = "NA";
+            /*
             try
             {
+                // FIXME is this too early to poll for the extension?
                 var ext = options.GetExtension<WebCoreOptionsExtension>();
                 // NB Note the connectionName's usage under e.g SqlServerDbContext.OnConfiguring()
                 connectionName = ext.ConnectionName;
@@ -51,6 +54,7 @@ namespace Thinkum.WebCore.Data
                 string msg = String.Format("Unable to locate extension WebCoreOptionsExtension in provided DbContextOptions {0}", options);
                 throw new InvalidOperationException(msg, exc);
             }
+            */
         }
         #endregion
 
