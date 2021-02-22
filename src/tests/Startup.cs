@@ -26,20 +26,21 @@ using Thinkum.WebCore.Endpoints;
 
 namespace Thinkum.WebCore
 {
-    internal static class ApplicationConstants
-    {
-        internal const string MainDbConnection = "WebCoreTests"; // NB Dots in this string may be inadvisable
-    }
 
-    public class Startup
+    public class Startup<TContext>
+        where TContext: DbContext
     {
 
         protected EndpointBroker broker;
-        protected IConfiguration config;
+        private readonly string appName;
+        protected readonly IConfiguration config;
 
-        public Startup(IConfiguration config)
+        protected string AppName => appName;
+
+        public Startup(string appName, IConfiguration config)
         {
             // TBD DI for this constructor
+            this.appName = appName;
             this.config = config;
             this.broker = new EndpointBroker();
         }
@@ -47,45 +48,10 @@ namespace Thinkum.WebCore
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddSingleton<DbConnectionManager>().AddOptions<DbConnectionManagerOptions>().Configure((options) =>
-            {
-                options.MapDataService(ApplicationConstants.MainDbConnection, typeof(MainDbContext), // ConfigureConnectionString, // NB TO DO
-                    (name, builder) => // name: string, builder: DbConnectionStringBuilder
-                    {
-                        // TBD this section is untested (FIXME WithExtensions may be useless for end users of EF Core)
-                        if (builder is SqlConnectionStringBuilder sqlBuilder)
-                        {
-                            // var dataFolder = Path.Combine(Environment.CurrentDirectory, "Data"); // NB only for testing (FIXME ensure directory exists)
-
-                            // ensure that the data file is not created under %HOME%
-                            var dataFolder = Environment.CurrentDirectory; // NB only for testing -- should be set at installation time
-                            var mdfName = name + ".mdf";
-                            sqlBuilder.AttachDBFilename = Path.Combine(dataFolder, mdfName); // FIXME use special folders to compute an absolute pathname
-
-                            sqlBuilder.IntegratedSecurity = true;
-                            sqlBuilder.MultipleActiveResultSets = true;
-                            sqlBuilder.ApplicationName = name;
-
-                            sqlBuilder.DataSource = @"(localdb)\MSSQLLocalDb"; // works
-
-                            // sqlBuilder.DataSource = @"np:\\.\pipe\LOCALDB#FE1DA647\tsql\query";
-                            // ^ see https://stackoverflow.com/questions/10214688/why-cant-i-connect-to-a-sql-server-2012-localdb-shared-instance
-
-                            // sqlBuilder.DataSource = @"'(localdb)\ProjectsV13"; // NB DNW at here
-
-                            sqlBuilder.InitialCatalog = name; // i.e 'Database' keyword
-                        }
-                        else
-                        {
-                            string msg = String.Format("Unsupported connection string builder: {0}", builder);
-                            throw new InvalidOperationException(msg);
-                        }
-                    }
-                    );
-            });
-
-            services.AddDbContext<MainDbContext>();
-
+            // FIXME provide an initial connection string template to DbConnectionManagerOptions from config[TBD]
+            services.AddSingleton<DbConnectionManager>().AddOptions<DbConnectionManagerOptions>()
+                .Configure(options => ConfigureConnectionManagerOptions(options));
+            services.AddDbContext<TContext>();
 
             // TBD passing route metadata to endpoint instances => db connection name per endpoint
             broker.BindEndpoint("/", RequestMethod.Get,
@@ -108,13 +74,45 @@ namespace Thinkum.WebCore
                 });
         }
 
-        /* // TO DO
+        private void ConfigureConnectionManagerOptions(DbConnectionManagerOptions options)
+        {
+            options.MapDataService(AppName, typeof(TContext), ConfigureConnectionString);
+        }
+
         private void ConfigureConnectionString(string name, DbConnectionStringBuilder builder)
         {
-            throw new NotImplementedException(); // NB see above
             // NB coupled to the selection of database implementation
+
+            // TBD this section is untested (FIXME WithExtensions may be useless for end users of EF Core)
+            if (builder is SqlConnectionStringBuilder sqlBuilder)
+            {
+                // var dataFolder = Path.Combine(Environment.CurrentDirectory, "Data"); // FIXME ensure directory exists
+
+                // NB ensure that the data file is not created under %HOME%
+                // FIXME implement a GetDataFolder(Application) ... method
+                var dataFolder = Environment.CurrentDirectory; // NB only for testing -- should be set at installation time
+                var mdfName = name + ".mdf";
+                sqlBuilder.AttachDBFilename = Path.Combine(dataFolder, mdfName); // FIXME use special folders to compute an absolute pathname
+
+                sqlBuilder.IntegratedSecurity = true;
+                sqlBuilder.MultipleActiveResultSets = true;
+                sqlBuilder.ApplicationName = name;
+
+                sqlBuilder.DataSource = @"(localdb)\MSSQLLocalDb"; // NB this instance name works, locally
+
+                // sqlBuilder.DataSource = @"np:\\.\pipe\LOCALDB#FE1DA647\tsql\query";
+                // ^ NB via 'SqlLocalDB info' cmd
+                // cf. https://stackoverflow.com/questions/10214688/why-cant-i-connect-to-a-sql-server-2012-localdb-shared-instance
+
+                sqlBuilder.InitialCatalog = name; // i.e 'Database' keyword
+            }
+            else
+            {
+                string msg = String.Format("Unsupported connection string builder: {0}", builder);
+                throw new InvalidOperationException(msg);
+            }
+
         }
-        */
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {

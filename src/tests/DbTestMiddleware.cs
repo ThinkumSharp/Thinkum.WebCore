@@ -25,20 +25,16 @@ namespace Thinkum.WebCore
 
         #region Instance Fields
         protected RequestDelegate? next; // NB support for InvokeAsync implementation
-        // protected DbContext dbContext;
         protected IServiceProvider services;
+        protected bool dbInitialized = false;
         #endregion
 
         #region Instance Constructors
-        // FIXME fails to find the local extension for the dbcontext
-        /**/
         public DbTestMiddleware(RequestDelegate? next, IServiceProvider services)
         {
             this.next = next;
-            // this.dbContext = context;
             this.services = services;
         }
-        /**/
         #endregion
 
         #region Instance Methods
@@ -56,19 +52,28 @@ namespace Thinkum.WebCore
             // NB
             // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware/write?view=aspnetcore-5
 
+            // NB the following middleware-based oprn is why the constructor was updated to include IServiceProvider
             using (IServiceScope inScope = services.CreateScope())
             {
 
+                // FIXME hard-coding dbcontext class here, only to access an instance of the correponding dbcontext type
+                //
+                // FIXME call this for every connection registered under DbConnectionManager, and store the "initialized = true" flag there
+                // or simply provide some other development-env code and installation-time scripting to ensure that the database is 
+                // created, under every installation
                 var dbc = inScope.ServiceProvider.GetRequiredService<MainDbContext>();
 
-                // TBD this may cause an error in some instances, if the database was created separately (??)
-                RelationalDatabaseCreator frob = (RelationalDatabaseCreator)dbc.Database.GetService<IDatabaseCreator>();
-                frob.EnsureCreated();
+                // NB
+                if (dbInitialized == false)
+                {
+                    RelationalDatabaseCreator dbCreator = (RelationalDatabaseCreator)dbc.Database.GetService<IDatabaseCreator>();
+                    dbCreator.EnsureCreated();
 
-                // await dbc.AddAsync("Frob");
-                await dbc.SaveChangesAsync();
+                    // await dbc.AddAsync("Frob");
+                    await dbc.SaveChangesAsync();
+                    dbInitialized = true;
+                }
             }
-            // await dbContext.SaveChangesAsync();
             InvokeNext(context);
         }
         #endregion

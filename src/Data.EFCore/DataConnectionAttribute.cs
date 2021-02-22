@@ -46,7 +46,8 @@ namespace Thinkum.WebCore.Data
             if (connectionName == null)
             {
                 this.connectionName = this.GetType().Name;
-            } else
+            }
+            else
             {
                 this.connectionName = connectionName;
             }

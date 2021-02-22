@@ -18,7 +18,7 @@ using Thinkum.WebCore.Data;
 
 namespace Thinkum.WebCore
 {
-    [DataConnection(ApplicationConstants.MainDbConnection)] // NB coupled to a connection name bound under Startup.cs
+    [DataConnection(ApplicationConstants.AppName)] // NB coupled to a connection name bound under Startup.cs
     public class MainDbContext : SqlServerDbContext
     {
 

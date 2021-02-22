@@ -13,25 +13,41 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Thinkum.WebCore
 {
+    internal static class ApplicationConstants
+    {
+        // NB AppName is used throughout this test, for purposes of database connection string matching.
+        // The value may also be used to provide some database metadata and for data file naming.
+        //
+        // As it will be used as a database name, non-alphanumeric characters in the AppName string may be inadvisable
+        internal const string AppName = "WebCoreTests";
+    }
+
     public class Program
     {
         public static void Main(string[] args)
         {
-
-            CreateHostBuilder(args).Build().Run();
+            CreateHostBuilder<MainDbContext>(ApplicationConstants.AppName, args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+        public static IHostBuilder CreateHostBuilder<TContext>(string appName, string[] args)
+            where TContext: DbContext
+        {
+            return Host.CreateDefaultBuilder(args)
+                 .ConfigureWebHostDefaults(webBuilder =>
+                 {
+                     webBuilder.UseStartup((webbuilder) =>
+                     {
+                         var config = webbuilder.Configuration;
+                         return new Startup<TContext>(appName, config);
+                     });
+                 });
+        }
     }
 }
