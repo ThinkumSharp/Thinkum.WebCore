@@ -15,7 +15,7 @@ namespace Thinkum.WebCore.Data
 
     public static class DataConnectionExtensions
     {
-        public static string? GetConnectionName(this Type whence)
+        public static string GetConnectionName(this Type whence)
         {
             var attrs = whence.GetCustomAttributes(true);
             string? name = null;
@@ -26,6 +26,10 @@ namespace Thinkum.WebCore.Data
                 {
                     name = datt.ConnectionName;
                 }
+            }
+            if (name == null)
+            {
+                name = whence.Name;
             }
             return name;
         }
