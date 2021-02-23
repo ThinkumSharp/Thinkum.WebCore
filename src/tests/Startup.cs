@@ -52,7 +52,12 @@ namespace Thinkum.WebCore
         {
 
             services.AddHostedService<DbConnectionManagerHost>(); // NB initial database migration, db creation by side effect, once per connection
-
+            // FIXME supplemental to the following, provide a simpler utility using templates and formatting for connection strings
+            // - app data directory
+            // - credentials
+            // - instance address
+            // - database name
+            // - etc
             services.AddSingleton<DbConnectionManager>().AddOptions<DbConnectionManagerOptions>()
                 .Configure(options => this.ConfigureConnectionManagerOptions(options));
             services.AddDbContext<TContext>();
@@ -80,7 +85,7 @@ namespace Thinkum.WebCore
 
         private void ConfigureConnectionManagerOptions(DbConnectionManagerOptions options)
         {
-            string? template = config.GetConnectionString(this.AppName); // FIXME test this templating
+            string? template = config.GetConnectionString(this.AppName); // FIXME test this rudimentary templating
             if (String.IsNullOrEmpty(template))
                 template = null;
 
@@ -91,7 +96,6 @@ namespace Thinkum.WebCore
         {
             // NB coupled to the selection of database implementation
 
-            // TBD this section is untested (FIXME WithExtensions may be useless for end users of EF Core)
             if (builder is SqlConnectionStringBuilder sqlBuilder)
             {
                 // var dataFolder = Path.Combine(Environment.CurrentDirectory, "Data"); // FIXME ensure directory exists
@@ -132,9 +136,7 @@ namespace Thinkum.WebCore
 
             app.UseRouting();
 
-            app.UseMiddleware<DbTestMiddleware>();
-
-            // app.UseMiddleware<EndpointBrokerMiddleware>(); // TBD. See src for that class (now defined as abstract)
+            // app.UseMiddleware<DbTestMiddleware>();
 
             app.UseEndpoints(builder =>
             {
