@@ -32,11 +32,11 @@ namespace Thinkum.WebCore.Data
             Action<string, DbConnectionStringBuilder>? stringBuilderDelegate = null
             )
         {
-            var binding = new ConnectionBinding(connectionName, dbContextType, stringBuilderType, connectionStringTemplate, stringBuilderDelegate);
+            var binding = new DbConnectionBinding(connectionName, dbContextType, stringBuilderType, connectionStringTemplate, stringBuilderDelegate);
             MapDataService(binding!);
         }
 
-        public void MapDataService(ConnectionBinding binding)
+        public void MapDataService(DbConnectionBinding binding)
         {
             var name = binding.ConnectionName;
             connectionBindings[name] = binding;

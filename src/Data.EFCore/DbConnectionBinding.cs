@@ -1,5 +1,5 @@
 ﻿/**
-* ConnectionBinding.cs
+* DbConnectionBinding.cs
 * Copyright (C) 2021 Sean Champ
 *
 * This Source Code is subject to the terms of the Mozilla Public
@@ -12,7 +12,7 @@ using System.Data.Common;
 
 namespace Thinkum.WebCore.Data
 {
-    public class ConnectionBinding
+    public class DbConnectionBinding
     {
         // NB used principally under WebCoreDbContext.ConfigureConnectionStringBuilder(...)
 
@@ -36,7 +36,7 @@ namespace Thinkum.WebCore.Data
 
         public string? ConnectionStringTemplate => connectionStringTemplate;
 
-        public ConnectionBinding(
+        public DbConnectionBinding(
                 string connectionName, Type dbContextType, Type stringBuilderType,
                 string? template = null,
                 Action<string, DbConnectionStringBuilder>? stringBuilderDelegate = null

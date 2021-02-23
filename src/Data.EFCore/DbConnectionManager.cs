@@ -38,15 +38,15 @@ namespace Thinkum.WebCore.Data
 
         public void LoadConnectionMap(DbConnectionManagerOptions options)
         {
-            foreach (KeyValuePair<string, ConnectionBinding> bind in options.ConnectionBindings)
+            foreach (KeyValuePair<string, DbConnectionBinding> bind in options.ConnectionBindings)
             {
                 this.connectionBindings[bind.Key] = bind.Value;
             }
         }
 
-        public ConnectionBinding GetConnectionBinding(string connectionName)
+        public DbConnectionBinding GetConnectionBinding(string connectionName)
         {
-            ConnectionBinding binding;
+            DbConnectionBinding binding;
             bool found = connectionBindings.TryGetValue(connectionName, out binding);
             if (found == true)
             {

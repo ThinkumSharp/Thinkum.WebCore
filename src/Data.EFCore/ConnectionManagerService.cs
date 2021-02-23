@@ -15,12 +15,12 @@ namespace Thinkum.WebCore.Data
     public abstract class ConnectionManagerService
     {
 
-        protected readonly Dictionary<string, ConnectionBinding> connectionBindings;
-        public Dictionary<string, ConnectionBinding> ConnectionBindings => connectionBindings;
+        protected readonly Dictionary<string, DbConnectionBinding> connectionBindings;
+        public Dictionary<string, DbConnectionBinding> ConnectionBindings => connectionBindings;
 
         public ConnectionManagerService()
         {
-            connectionBindings = new Dictionary<string, ConnectionBinding>(1);
+            connectionBindings = new Dictionary<string, DbConnectionBinding>(1);
         }
 
     }
